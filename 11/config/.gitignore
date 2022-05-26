@@ -1,0 +1,12 @@
+#Only Include these specific directories and subdirectories:
+/*
+
+!.gitignore
+!alignment/
+!alignment/*
+!detection/
+!detection/*
+!recognition/
+!recognition/*
+!fr.py
+!README.md

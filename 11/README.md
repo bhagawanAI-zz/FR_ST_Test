@@ -3,13 +3,13 @@
 - download source code 
 
 ````console
-$ wget https://www.python.org/ftp/python/3.8.13/Python-3.8.13.tgz
+$ wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz
 ````
  
 - Unzip it
 
 ````console
-$ tar -xvzf Python-3.8.13.tgz
+$ tar -xvzf Python-3.9.13.tgz
 ````
 
 - cd into it
@@ -37,6 +37,14 @@ $ export PYTHONPATH=<ABSOLUTE_PATH where we want to build python>
 ````
 
 - same python location must be changed in CMakeLists.txt ...
+
+
+
+- 
+
+
+
+
 
 - now you can proceed to following procedure ...
 

@@ -1,16 +1,14 @@
+DEBUG = True
+def dprint(*args):
+    if DEBUG:
+        print(args)
+
 import cv2
 import numpy as np
 import mediapipe as mp
 import itertools
 
 from alignment.utils import normalized_to_pixel_coordinates
-
-
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh_images = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5)
-
-LEFT_EYE_INDEXES = list(set(itertools.chain(*mp_face_mesh.FACEMESH_LEFT_EYE)))
-RIGHT_EYE_INDEXES = list(set(itertools.chain(*mp_face_mesh.FACEMESH_RIGHT_EYE)))
 
 
 def AffignTransform(LEFT_NORM_COORDS_LIST, RIGHT_NORM_COORDS_LIST, cropped_face, cropped_cord):
@@ -66,27 +64,38 @@ def AffignTransform(LEFT_NORM_COORDS_LIST, RIGHT_NORM_COORDS_LIST, cropped_face,
 
 
 def faceAlignment(cropped_face, cropped_cord):
-
+    dprint("inside faceAlignment function, cropped_face's shape: ", cropped_face.shape)
+    mp_face_mesh = mp.solutions.face_mesh
+    dprint("mp_face_mesh created !")
+    face_mesh_images = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, min_detection_confidence=0.5)
+    dprint("face_mesh_images: ", face_mesh_images)
+    LEFT_EYE_INDEXES = list(set(itertools.chain(*mp_face_mesh.FACEMESH_LEFT_EYE)))
+    dprint("LEFT_EYE_INDEXES: ", LEFT_EYE_INDEXES)
+    RIGHT_EYE_INDEXES = list(set(itertools.chain(*mp_face_mesh.FACEMESH_RIGHT_EYE)))
+    dprint("LEFT_EYE_INDEXES: ", LEFT_EYE_INDEXES)
+    
     image_height, image_width, _ = cropped_face.shape
-
+    dprint("image height, width: ", image_height, image_width)
+    dprint('face_mech_images:: ', face_mesh_images)
     face_mesh_results = face_mesh_images.process(cropped_face[:,:,::-1]) # passing rgb image
-
+    dprint("face_mesh_results: ", face_mesh_results)
     LEFT_NORM_COORDS_LIST = []
     RIGHT_NORM_COORDS_LIST = [] 
     if face_mesh_results.multi_face_landmarks[0]:
+        dprint("type(face_mesh_results.multi_face_landmarks[0]): ", type(face_mesh_results.multi_face_landmarks[0]))
         face_landmarks = face_mesh_results.multi_face_landmarks[0]
-        
+        dprint("left eye loop")
         for LEFT_EYE_INDEX in LEFT_EYE_INDEXES:
             normalized_x = face_landmarks.landmark[LEFT_EYE_INDEX].x
             normalized_y = face_landmarks.landmark[LEFT_EYE_INDEX].y
             norm_xy = normalized_to_pixel_coordinates(normalized_x, normalized_y, image_width, image_height)
             LEFT_NORM_COORDS_LIST.append(norm_xy)
-            
+        dprint("right eye loop")
         for RIGHT_EYE_INDEXE in RIGHT_EYE_INDEXES:
             normalized_x = face_landmarks.landmark[RIGHT_EYE_INDEXE].x
             normalized_y = face_landmarks.landmark[RIGHT_EYE_INDEXE].y
             norm_xy = normalized_to_pixel_coordinates(normalized_x, normalized_y, image_width, image_height)
             RIGHT_NORM_COORDS_LIST.append(norm_xy)
-
-
+    
+    dprint("returning ...")
     return AffignTransform(LEFT_NORM_COORDS_LIST, RIGHT_NORM_COORDS_LIST, cropped_face, cropped_cord)

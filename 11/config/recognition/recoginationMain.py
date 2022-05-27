@@ -15,6 +15,8 @@ def get_embeddings(alligned_face, model):
 	print("[++++] processed samples size: ", samples.shape)
 	try:
 		print("[++++] performing prediction")
+		print("[++++] model type: ", type(model))
+		# print("[++++] model dir(): ", dir(model))
 		yhat = model.predict(samples, verbose=2)
 	except Exception as e:
 		print("[++++] keras exception ", e)

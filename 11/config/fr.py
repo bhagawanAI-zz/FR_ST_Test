@@ -32,8 +32,8 @@ dprint("IMPORTED scipy!! ", scipy.__version__)
 
 
 dprint("IMPORTING Tesnorflow")
-import tensorflow
-dprint("IMPORTED Tesnorflow!! ", tensorflow.__version__)
+import tensorflow as tf
+dprint("IMPORTED Tesnorflow!! ", tf.__version__)
 
 
 dprint("IMPORTING mediapipe")
@@ -53,7 +53,11 @@ from detection.detectorMain import faceDetector
 dprint("[++++] importing faceAlignment")
 from alignment.alignmentMain import faceAlignment
 dprint("[++++] importing get_embeddings, is_match")
-from recognition.recoginationMain import get_embeddings, is_match
+try:
+    from recognition.recoginationMain import get_embeddings, is_match
+except Exception as e:
+    dprint(e)
+
 dprint("[++++] importing VGGFace")
 from recognition.vggfaceTF import VGGFace
 
@@ -94,18 +98,26 @@ def getDetectorModel(config_dir):
 
 def getEmbeddingModel(config_dir):
     try:
-        dprint("[++++] EMBEDDING CALL HUA HAI")
-        weights_path = os.path.join(config_dir,"recognition/model-weights/rcmalli_vggface_tf_notop_resnet50.h5")
+
+        # dprint("[++++] EMBEDDING CALL HUA HAI")
+        # weights_path = os.path.join(config_dir,"recognition/model-weights/rcmalli_vggface_tf_notop_resnet50.h5")
         
-        dprint("[++++] loading resNet50, weigts_path: ", weights_path)
-        embedding_model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg',weights_path=weights_path)
-        dprint("[++++] loaded resNet50")
-        # doing 1st inference here
+        # dprint("[++++] loading resNet50, weigts_path: ", weights_path)
+        # embedding_model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg',weights_path=weights_path)
+        # dprint("[++++] loaded resNet50")
+        
+        model_path = os.path.join(config_dir,"embedding_model")
+        dprint("[++++] model_path: ", model_path)
+        embedding_model = tf.keras.models.load_model(model_path)
+        dprint("[++++] loaded embedding model")
+        # # doing 1st inference here
         dprint("[++++] doing 1st inference here")
         frame = np.zeros((224,224,3)).astype(np.uint8)
         dprint("[++++] passing image of zeros, frame:", type(frame), frame.shape)
         current_embedding = get_embeddings(frame, embedding_model)  
         dprint("[++++] got embedding of shape: ", current_embedding.shape)
+        
+
     except Exception as e:
         dprint("something went wrong :( ", e)
         pass
@@ -186,6 +198,7 @@ def create_template_multiple_images_single_face(image_tuple):
             detector_net = image_tuple[2]
 
             # embedding_model = image_tuple[3]
+            # dprint("[++++] size of model recieved from c++", sys.getsizeof(object))
             ############ image_tuple[4] contains configDir->str
             config_dir = image_tuple[4]
             embedding_model = getEmbeddingModel(config_dir)
@@ -377,6 +390,13 @@ def create_template_single_images_mutiple_faces(image_tuple):
     )
 
 
+# if __name__ == '__main__':
+#     weights_path = os.path.join("","recognition/model-weights/rcmalli_vggface_tf_notop_resnet50.h5")
+#     dprint("[++++] loading resNet50, weigts_path: ", weights_path)
+#     embedding_model = VGGFace(model='resnet50', include_top=False, input_shape=(224, 224, 3), pooling='avg',weights_path=weights_path)
+#     dprint("[++++] saving model", )
+#     embedding_model.save('embedding_model')
+#     dprint("[++++] saced model" )
 
 
 
